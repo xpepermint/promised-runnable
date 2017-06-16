@@ -101,7 +101,7 @@ ava_1.default("option `schedule` should reschedule the execution at returned dat
 }));
 ava_1.default("option `timeout` should reject if it takes too long", (t) => __awaiter(this, void 0, void 0, function* () {
     let r = new __1.Runnable({
-        action: () => new Promise((resolve, reject) => setTimeout(resolve, 1000, true)),
+        action: () => new Promise((resolve, reject) => setTimeout(resolve, 2000, true)),
         timeout: 1000,
     });
     try {

@@ -94,7 +94,7 @@ test("option `schedule` should reschedule the execution at returned date", async
 
 test("option `timeout` should reject if it takes too long", async t => {
   let r = new Runnable({
-    action: () => new Promise((resolve, reject) => setTimeout(resolve, 1000, true)),
+    action: () => new Promise((resolve, reject) => setTimeout(resolve, 2000, true)),
     timeout: 1000,
   });
 
