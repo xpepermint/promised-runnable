@@ -1,0 +1,56 @@
+{
+  "name": "promised-runnable",
+  "version": "0.1.0",
+  "description": "Configurable object for performing operation.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "ava": {
+    "files": [
+      "./dist/tests/*.js",
+      "./dist/tests/**/*.js"
+    ],
+    "concurrency": 1,
+    "failFast": true
+  },
+  "scripts": {
+    "clean": "rm -Rf ./dist/*",
+    "build": "npm run clean; tsc",
+    "lint": "tslint 'src/**/*.ts?(x)'",
+    "prepublish": "npm run build",
+    "test": "npm run build && ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xpepermint/promised-runnable.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xpepermint/promised-runnable/issues"
+  },
+  "homepage": "https://github.com/xpepermint/promised-runnable#readme",
+  "keywords": [
+    "run",
+    "runnable",
+    "delay",
+    "timeout",
+    "debounce",
+    "retry",
+    "retries",
+    "schedule",
+    "handle",
+    "promise",
+    "promised"
+  ],
+  "author": "Kristijan Sedlak (@xpepermint)",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^7.0.27",
+    "ava": "^0.19.1",
+    "moment": "2.18.1",
+    "tslint": "^5.4.2",
+    "typescript": "^2.3.4"
+  },
+  "dependencies": {
+    "ioredis": "3.1.1",
+    "ioredis-quota": "0.5.0"
+  }
+}
