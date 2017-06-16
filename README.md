@@ -4,7 +4,7 @@
 
 > Configurable object for performing operation.
 
-The source code is available on [GitHub](https://github.com/xpepermint/promised-runnable) where you can also find our [issue tracker](https://github.com/xpepermint/promised-runnable/blob/master/issues).
+The source code is available on [GitHub](https://github.com/xpepermint/promised-runnable) where you can also find our [issue tracker](https://github.com/xpepermint/promised-runnable/issues).
 
 ## Installation
 
@@ -48,7 +48,7 @@ Runnable can **retry** the execution if it fails.
 ```js
 const runnable = new Runnable({
   action: () => "Done!",
-  retries: 5, // tretry 5x before failing
+  retries: 5, // retry 5x before failing
   retryDelay: 1000, // delay the execution between retries
 });
 ```
@@ -58,7 +58,7 @@ Runnable can handle **timeouts**.
 ```js
 const runnable = new Runnable({
   action: () => "Done!",
-  timeout: 5000, // throws the RunnableTimeoutError if the execution takes too long
+  timeout: 5000, // throws the RunnableTimeoutError if the execution takes more then 5s
 });
 ```
 Runnable can **schedule** the execution at a different time in the future. To give this feature more sence, let's define a new runnable object which can execute up to 1 command per second.
