@@ -1,6 +1,6 @@
 {
   "name": "promised-runnable",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Configurable object for performing operation.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -48,9 +48,5 @@
     "moment": "2.18.1",
     "tslint": "^5.4.2",
     "typescript": "^2.3.4"
-  },
-  "dependencies": {
-    "ioredis": "3.1.1",
-    "ioredis-quota": "0.5.0"
   }
 }
