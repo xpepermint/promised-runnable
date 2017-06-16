@@ -1,6 +1,6 @@
 {
   "name": "promised-runnable",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Configurable object for performing operation.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -9,8 +9,8 @@
       "./dist/tests/*.js",
       "./dist/tests/**/*.js"
     ],
-    "concurrency": 1,
-    "failFast": true
+    "concurrency": 4,
+    "failFast": false
   },
   "scripts": {
     "clean": "rm -Rf ./dist/*",

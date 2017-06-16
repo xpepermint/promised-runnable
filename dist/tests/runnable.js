@@ -100,43 +100,105 @@ ava_1.default("option `schedule` should reschedule the execution at returned dat
     t.is(Date.now() - start >= 4000, true);
 }));
 ava_1.default("option `timeout` should reject if it takes too long", (t) => __awaiter(this, void 0, void 0, function* () {
-    let r = new __1.Runnable({
-        action: () => new Promise((resolve, reject) => setTimeout(resolve, 2000, true)),
+    let runnable = new __1.Runnable({
+        action: () => new Promise((resolve, reject) => setTimeout(resolve, 3000, true)),
         timeout: 1000,
     });
     try {
-        yield r.perform();
+        yield runnable.perform();
         t.fail();
     }
     catch (e) {
-        t.pass();
+        t.is(e instanceof __1.RunnableTimeoutError, true);
     }
 }));
 ava_1.default("option `timeout` should resolve when completed fast enough", (t) => __awaiter(this, void 0, void 0, function* () {
-    let r = new __1.Runnable({
-        action: () => new Promise((resolve, reject) => setTimeout(resolve, 10, true)),
+    let runnable = new __1.Runnable({
+        action: () => new Promise((resolve, reject) => setTimeout(resolve, 3000, true)),
+        timeout: 5000,
+    });
+    try {
+        let res = yield runnable.perform();
+        t.is(res, true);
+    }
+    catch (e) {
+        t.fail();
+    }
+}));
+ava_1.default("method `cancel` should aboart delayed execution", (t) => __awaiter(this, void 0, void 0, function* () {
+    let runnable = new __1.Runnable({
+        action: () => true,
+        delay: 2000,
+    });
+    try {
+        setTimeout(() => runnable.cancel(), 100);
+        yield runnable.perform();
+        t.fail();
+    }
+    catch (e) {
+        t.is(e instanceof __1.RunnableCancelError, true);
+    }
+}));
+ava_1.default("method `cancel` should aboart scheduled execution", (t) => __awaiter(this, void 0, void 0, function* () {
+    let times = 0;
+    let runnable = new __1.Runnable({
+        action: () => true,
+        schedule: () => {
+            times++;
+            if (times < 3) {
+                return moment().add(2, "seconds").toDate();
+            }
+            else {
+                return new Date();
+            }
+        },
+    });
+    try {
+        setTimeout(() => runnable.cancel(), 100);
+        yield runnable.perform();
+        t.fail();
+    }
+    catch (e) {
+        t.is(e instanceof __1.RunnableCancelError, true);
+    }
+}));
+ava_1.default("method `cancel` should aboart retried execution", (t) => __awaiter(this, void 0, void 0, function* () {
+    let times = 0;
+    let raise = () => {
+        if (times !== 2) {
+            throw new Error("foo");
+        }
+    };
+    let runnable = new __1.Runnable({
+        action: () => {
+            times++;
+            raise();
+        },
+        retries: 3,
+        retryDelay: 10000,
+    });
+    try {
+        setTimeout(() => runnable.cancel(), 100);
+        yield runnable.perform();
+        t.fail();
+    }
+    catch (e) {
+        t.is(e instanceof __1.RunnableCancelError, true);
+    }
+}));
+ava_1.default("method `cancel` should aboart timeouted execution", (t) => __awaiter(this, void 0, void 0, function* () {
+    let runnable = new __1.Runnable({
+        action: () => new Promise((resolve, reject) => setTimeout(resolve, 5000, true)),
         timeout: 10000,
     });
     let started = Date.now();
     try {
-        yield r.perform();
-        if (Date.now() - started > 20) {
-            t.fail();
-        }
-        else {
-            t.pass();
-        }
-    }
-    catch (e) {
+        setTimeout(() => runnable.cancel(), 100);
+        yield runnable.perform();
         t.fail();
     }
-}));
-ava_1.default("option `timeout` should reject with timeout error if it takes too long", (t) => __awaiter(this, void 0, void 0, function* () {
-    let r = new __1.Runnable({
-        action: () => new Promise((resolve, reject) => setTimeout(resolve, 1000, true)),
-        timeout: 1,
-    });
-    let error = yield r.perform().catch((e) => (e instanceof __1.RunnableTimeoutError));
-    t.is(error, true);
+    catch (e) {
+        t.is(e instanceof __1.RunnableCancelError, true);
+    }
 }));
 //# sourceMappingURL=runnable.js.map

@@ -6,6 +6,7 @@ export declare class Runnable {
     retryDelay: number;
     timeout: number;
     protected timer: any;
+    protected rejector: any;
     constructor({action, delay, schedule, retries, retryDelay, timeout}: {
         action: () => any;
         delay?: number;
@@ -16,9 +17,9 @@ export declare class Runnable {
     });
     perform(): Promise<any>;
     protected performDelay(delay: any, next: any): any;
-    protected performRetries(retries: any, next: any): any;
     protected performSchedule(schedule: any, next: any): any;
-    protected performTimeout(timeout: any, next: any): Promise<any>;
+    protected performRetries(retries: any, next: any): any;
+    protected performTimeout(timeout: any, next: any): any;
     protected performAction(): Promise<any>;
-    cancel(): Promise<boolean>;
+    cancel(): boolean;
 }

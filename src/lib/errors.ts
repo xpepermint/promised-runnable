@@ -9,3 +9,15 @@ export class RunnableTimeoutError extends Error {
     super(message);
   }
 }
+
+/**
+* Runnable cancel error.
+*/
+export class RunnableCancelError extends Error {
+  /**
+  * Class constructor.
+  */
+  public constructor(message = "Action canceled.") {
+    super(message);
+  }
+}

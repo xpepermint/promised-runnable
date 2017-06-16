@@ -1,4 +1,4 @@
-import { RunnableTimeoutError } from "./errors";
+import { RunnableTimeoutError, RunnableCancelError } from "./errors";
 
 /**
  * Main runnable class.
@@ -34,6 +34,10 @@ export class Runnable {
    * Timeout timer.
    */
   protected timer: any = null;
+  /**
+   * Reference to the reject method of a promise when the setTimeout is used.
+   */
+  protected rejector: any = null;
 
   /**
    * Class constructor.
@@ -82,24 +86,11 @@ export class Runnable {
   protected performDelay(delay, next) {
     if (delay > 0) {
       return new Promise((resolve, reject) => {
-        this.timer = setTimeout(() => next().then(resolve).catch(reject), delay);
-      });
-    } else {
-      return next();
-    }
-  }
-
-  /**
-   * Performs the provided action with retry.
-   */
-  protected performRetries(retries, next) {
-    if (retries > 0) {
-      return next().catch((err) => {
-        return new Promise((resolve, reject) => {
-          this.timer = setTimeout(() => {
-            this.performRetries(retries - 1, next).then(resolve).catch(reject);
-          }, this.retryDelay);
-        });
+        this.rejector = reject;
+        this.timer = setTimeout(() => {
+          this.rejector = null;
+          next().then(resolve).catch(reject);
+        }, delay);
       });
     } else {
       return next();
@@ -117,14 +108,35 @@ export class Runnable {
         return !future ? 0 : future.getTime() - Date.now();
       }).then((delay: number) => {
         if (delay > 0) {
-          return new Promise((resolve) => {
-            this.timer = setTimeout(resolve, delay, this.perform.bind(this));
+          return new Promise((resolve, reject) => {
+            this.rejector = reject;
+            this.timer = setTimeout(() => {
+              this.rejector = null;
+              this.perform().then(resolve).catch(reject);
+            }, delay);
           });
         } else {
-          return next.bind(this);
+          return next();
         }
-      }).then((callback: any) => {
-        return callback ? callback() : callback();
+      });
+    } else {
+      return next();
+    }
+  }
+
+  /**
+   * Performs the provided action with retry.
+   */
+  protected performRetries(retries, next) {
+    if (retries > 0) {
+      return next().catch((err) => {
+        return new Promise((resolve, reject) => {
+          this.rejector = reject;
+          this.timer = setTimeout(() => {
+            this.rejector = null;
+            this.performRetries(retries - 1, next).then(resolve).catch(reject);
+          }, this.retryDelay);
+        });
       });
     } else {
       return next();
@@ -136,28 +148,26 @@ export class Runnable {
    * takes too long.
    */
   protected performTimeout(timeout, next) {
-    const error = new RunnableTimeoutError();
+    if (timeout > 0) {
+      return new Promise((resolve, reject) => {
+        this.rejector = reject;
+        this.timer = setTimeout(() => {
+          reject(new RunnableTimeoutError());
+        }, timeout);
 
-    const sleep = timeout > 0
-      ? new Promise((resolve, reject) => (this.timer = setTimeout(reject, timeout, error)))
-      : null;
-
-    const run = Promise.resolve().then(() => {
+        next().then((d) => {
+          this.rejector = null;
+          clearTimeout(this.timer);
+          return resolve(d);
+        }).catch((e) => {
+          this.rejector = null;
+          clearTimeout(this.timer);
+          return reject(e);
+        });
+      });
+    } else {
       return next();
-    }).then((value) => {
-      clearTimeout(this.timer);
-      return value;
-    });
-
-    return Promise.race(
-      [run, sleep].filter(p => !!p)
-    ).then((res) => {
-      if (res === error) {
-        throw error;
-      } else {
-        return res;
-      }
-    });
+    }
   }
 
   /**
@@ -169,11 +179,14 @@ export class Runnable {
     });
   }
 
-
   /**
    * Cancels the command.
    */
-  public async cancel() {
+  public cancel() {
+    if (this.rejector) {
+      this.rejector(new RunnableCancelError());
+      this.rejector = null;
+    }
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = null;

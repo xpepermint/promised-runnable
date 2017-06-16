@@ -102,6 +102,12 @@ const { Runnable } = require(".");
 })();
 ```
 
+Runnable execution can be **canceled**.
+
+```js
+runnable.cancel();
+```
+
 ## License (MIT)
 
 ```
