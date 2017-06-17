@@ -69,21 +69,11 @@ const Redis = require("ioredis");
 const { Quota } = require("ioredis-quota");
 const redis = new Redis();
 const quota = new Quota({ redis });
-const schedule = () => {
-  return quota.grant({
-    key: 'test-done',
-    unit: 'second',
-    limit: 1
-  }).then(() => {
-    return 0;
-  }).catch((e) => {
-    if (e.nextDate) {
-      return e.nextDate;
-    } else {
-      throw e;
-    }
-  });
-};
+const schedule = () => quota.schedule({
+  key: 'test-done',
+  unit: 'second',
+  limit: 1
+});
 
 /** Runnable */
 const { Runnable } = require(".");

@@ -1,6 +1,6 @@
 {
   "name": "promised-runnable",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Configurable object for performing operation.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
